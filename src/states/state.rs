@@ -9,6 +9,8 @@ use amethyst::{
 
 use log::info;
 
+use crate::components::{Player, GameplayTag, Size, Speed};
+
 pub struct MyState;
 
 impl SimpleState for MyState {
@@ -18,6 +20,11 @@ impl SimpleState for MyState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
+        world.register::<Player>();
+        world.register::<GameplayTag>();
+        world.register::<Size>();
+        world.register::<Speed>();
+
         // Get the screen dimensions so we can initialize the camera and
         // place our sprites correctly later. We'll clone this since we'll
         // pass the world mutably to the following functions.
@@ -26,9 +33,10 @@ impl SimpleState for MyState {
         // Place the camera
         init_camera(world, &dimensions);
 
-        // Load our sprites and display them
         let sprites = load_sprites(world);
         init_sprites(world, &sprites, &dimensions);
+
+        Player::init(world, &dimensions);
     }
 
     fn handle_event(
@@ -115,7 +123,7 @@ fn init_sprites(world: &mut World, sprites: &[SpriteRender], dimensions: &Screen
         let x = (i as f32 - 1.) * 100. + dimensions.width() * 0.5;
         let y = (i as f32 - 1.) * 100. + dimensions.height() * 0.5;
         let mut transform = Transform::default();
-        transform.set_translation_xyz(x, y, 0.);
+        transform.set_translation_xyz(x, y, -1.0);
 
         // Create an entity for each sprite and attach the `SpriteRender` as
         // well as the transform. If you want to add behaviour to your sprites,
